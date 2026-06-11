@@ -10,10 +10,7 @@ entity top_4x_ds18b20 is
         DQ_1 : inout STD_LOGIC;
         DQ_2 : inout STD_LOGIC;
         DQ_3 : inout STD_LOGIC;
-        DQ_4 : inout STD_LOGIC;
-
-        -- LEDs, um zu sehen, ob Werte gelesen wurden (optionales Debugging)
-        LED_VALID : out STD_LOGIC_VECTOR(3 downto 0)
+        DQ_4 : inout STD_LOGIC
     );
 end top_4x_ds18b20;
 
@@ -40,9 +37,6 @@ architecture Behavioral of top_4x_ds18b20 is
     signal valid_2 : STD_LOGIC;
     signal valid_3 : STD_LOGIC;
     signal valid_4 : STD_LOGIC;
-
-    -- Wir speichern den Zustand für die LEDs dauerhaft ab
-    signal led_reg : STD_LOGIC_VECTOR(3 downto 0) := "0000";
 
 begin
 
@@ -81,19 +75,5 @@ begin
             temp_data  => temp_4,
             valid      => valid_4
         );
-
-    -- Ein kleiner Prozess, der eine LED einschaltet, wenn ein Sensor einmal erfolgreich gelesen hat.
-    -- Das ist sehr praktisch, um sofort zu sehen, ob die Verkabelung stimmt!
-    process(CLK100MHZ)
-    begin
-        if rising_edge(CLK100MHZ) then
-            if valid_1 = '1' then led_reg(0) <= '1'; end if;
-            if valid_2 = '1' then led_reg(1) <= '1'; end if;
-            if valid_3 = '1' then led_reg(2) <= '1'; end if;
-            if valid_4 = '1' then led_reg(3) <= '1'; end if;
-        end if;
-    end process;
-
-    LED_VALID <= led_reg;
 
 end Behavioral;

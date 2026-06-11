@@ -15,8 +15,7 @@ architecture Behavioral of tb_top_4x_ds18b20 is
             DQ_1      : inout STD_LOGIC;
             DQ_2      : inout STD_LOGIC;
             DQ_3      : inout STD_LOGIC;
-            DQ_4      : inout STD_LOGIC;
-            LED_VALID : out STD_LOGIC_VECTOR(3 downto 0)
+            DQ_4      : inout STD_LOGIC
         );
     end component;
 
@@ -26,7 +25,6 @@ architecture Behavioral of tb_top_4x_ds18b20 is
     signal dq_2  : std_logic := 'H';
     signal dq_3  : std_logic := 'H';
     signal dq_4  : std_logic := 'H';
-    signal leds  : std_logic_vector(3 downto 0);
 
     -- Clock periode für 100 MHz (10 ns)
     constant clk_period : time := 10 ns;
@@ -40,8 +38,7 @@ begin
             DQ_1      => dq_1,
             DQ_2      => dq_2,
             DQ_3      => dq_3,
-            DQ_4      => dq_4,
-            LED_VALID => leds
+            DQ_4      => dq_4
         );
 
     -- Erzeuge den 100MHz Takt

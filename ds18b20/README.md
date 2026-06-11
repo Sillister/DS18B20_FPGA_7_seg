@@ -22,8 +22,7 @@ Der FPGA sendet kontinuierlich Befehle an die Sensoren:
 2. **Skip ROM (0xCC):** Da jeder Sensor an einem *eigenen* Pin hängt, müssen wir keine Adressen prüfen. Wir überspringen das.
 3. **Convert T (0x44):** Der FPGA sagt dem Sensor: "Miss jetzt die Temperatur". Das dauert ca. 750 ms.
 4. **Read Scratchpad (0xBE):** Nach der Wartezeit liest der FPGA die 16-Bit Temperaturdaten aus.
-5. Die LEDs (LED 0 bis 3) leuchten auf, sobald mindestens ein Wert erfolgreich gelesen wurde.
 
 ## Nächste Schritte
 
-Aktuell werden die Werte im FPGA-Chip gespeichert, aber noch nicht auf dem 7-Segment-Display angezeigt. Das ist der nächste logische Schritt, sobald du verifiziert hast, dass die Sensoren (LEDs leuchten) richtig ausgelesen werden.
+Aktuell werden die Werte im FPGA-Chip gespeichert, aber noch nicht auf dem 7-Segment-Display angezeigt. Das ist der nächste logische Schritt, oder auch die Einbindung von Relais, die basierend auf den gemessenen Temperaturen geschaltet werden können.
