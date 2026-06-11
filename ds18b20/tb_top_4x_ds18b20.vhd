@@ -1,78 +1,124 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
--- Eine einfache Testbench, um unser Top-Modul zu überprüfen.
--- Sie generiert einen 100MHz Takt und simuliert das Verhalten eines angebundenen Sensors.
 entity tb_top_4x_ds18b20 is
 end tb_top_4x_ds18b20;
 
 architecture Behavioral of tb_top_4x_ds18b20 is
-
-    -- Wir holen uns das Top-Modul
-    component top_4x_ds18b20
+    component ds18b20_simple
+        Generic (
+            CONVERT_TIME_US : integer := 800000
+        );
         Port (
-            CLK100MHZ : in  STD_LOGIC;
-            DQ_1      : inout STD_LOGIC;
-            DQ_2      : inout STD_LOGIC;
-            DQ_3      : inout STD_LOGIC;
-            DQ_4      : inout STD_LOGIC
+            clk_100MHz : in  STD_LOGIC;
+            dq         : inout STD_LOGIC;
+            temp_data  : out STD_LOGIC_VECTOR(15 downto 0);
+            valid      : out STD_LOGIC
         );
     end component;
 
-    -- Signale für die Testbench
     signal clk   : std_logic := '0';
-    signal dq_1  : std_logic := 'H'; -- 'H' simuliert den Pull-Up Widerstand
-    signal dq_2  : std_logic := 'H';
-    signal dq_3  : std_logic := 'H';
-    signal dq_4  : std_logic := 'H';
+    signal dq  : std_logic := 'H';
+    signal temp_data : std_logic_vector(15 downto 0);
+    signal valid : std_logic;
 
-    -- Clock periode für 100 MHz (10 ns)
     constant clk_period : time := 10 ns;
+    signal sim_done : boolean := false;
 
 begin
 
-    -- Wir verbinden unser Top-Modul mit den Testbench-Signalen
-    UUT: top_4x_ds18b20
+    dq <= 'H';
+
+    UUT: ds18b20_simple
+        Generic map (
+            CONVERT_TIME_US => 800
+        )
         Port map (
-            CLK100MHZ => clk,
-            DQ_1      => dq_1,
-            DQ_2      => dq_2,
-            DQ_3      => dq_3,
-            DQ_4      => dq_4
+            clk_100MHz => clk,
+            dq         => dq,
+            temp_data  => temp_data,
+            valid      => valid
         );
 
-    -- Erzeuge den 100MHz Takt
     clk_process : process
     begin
-        clk <= '0';
-        wait for clk_period/2;
-        clk <= '1';
-        wait for clk_period/2;
+        while not sim_done loop
+            clk <= '0';
+            wait for clk_period/2;
+            clk <= '1';
+            wait for clk_period/2;
+        end loop;
+        wait;
     end process;
 
-    -- Ein Prozess, der das Verhalten EINES Sensors an dq_1 simuliert
-    -- Wir antworten hier auf das erste Reset-Signal des FPGAs
     sensor_sim : process
+        variable my_temp : std_logic_vector(15 downto 0) := "0000000110010000";
     begin
-        -- Warte, bis der FPGA die Leitung zum ersten Mal auf '0' zieht (Reset Pulse)
-        wait until dq_1 = '0';
-
-        -- Der FPGA hält das Signal für 500 us. Wir warten, bis er wieder loslässt.
-        wait until dq_1 = 'H' or dq_1 = 'Z' or dq_1 = '1';
-
-        -- Nach dem Reset wartet der Sensor kurz (ca. 15-60 us) und antwortet dann
-        -- mit einem "Presence Pulse" (er zieht die Leitung auf 0 für 60-240 us).
+        -- === SCHRITT 1: Reset 1 ===
+        wait until dq = '0';
+        wait until dq = 'H' or dq = '1';
         wait for 30 us;
-
-        -- Sende Presence Pulse (Bestätigung "Ich bin da!")
-        dq_1 <= '0';
+        dq <= '0';
         wait for 120 us;
+        dq <= 'Z';
 
-        -- Sensor gibt Leitung wieder frei
-        dq_1 <= 'Z';
+        -- === SCHRITT 2: Skip ROM ===
+        for i in 0 to 7 loop
+            wait until dq = '0';
+            wait until dq = 'H' or dq = '1';
+        end loop;
 
-        -- Hier würde der Sensor nun auf die Befehle (Skip ROM, etc.) warten.
-        -- Für einen einfachen Test der ersten Schritte belassen wir es dabei.
+        -- === SCHRITT 3: Convert T ===
+        for i in 0 to 7 loop
+            wait until dq = '0';
+            wait until dq = 'H' or dq = '1';
+        end loop;
+
+        -- === SCHRITT 4: Reset 2 ===
+        wait until dq = '0';
+        wait until dq = 'H' or dq = '1';
+        wait for 30 us;
+        dq <= '0';
+        wait for 120 us;
+        dq <= 'Z';
+
+        -- === SCHRITT 5: Skip ROM ===
+        for i in 0 to 7 loop
+            wait until dq = '0';
+            wait until dq = 'H' or dq = '1';
+        end loop;
+
+        -- === SCHRITT 6: Read Scratchpad ===
+        for i in 0 to 7 loop
+            wait until dq = '0';
+            wait until dq = 'H' or dq = '1';
+        end loop;
+
+        -- === SCHRITT 7: Temperatur senden (LSB FIRST) ===
+        for i in 0 to 15 loop
+            wait until dq = '0';
+            wait for 2 us;
+            if my_temp(i) = '0' then
+                dq <= '0';
+                wait for 20 us;
+                dq <= 'Z';
+                wait for 40 us;
+            else
+                dq <= 'Z';
+                wait for 60 us;
+            end if;
+        end loop;
+
+        wait until valid = '1';
+        report "Simulation erfolgreich: Valid-Signal empfangen!";
+        sim_done <= true;
+        wait;
+    end process;
+
+    process
+    begin
+        wait for 20 ms;
+        assert sim_done report "TIMEOUT ERR: Simulation hat 20ms ueberschritten!" severity failure;
         wait;
     end process;
 

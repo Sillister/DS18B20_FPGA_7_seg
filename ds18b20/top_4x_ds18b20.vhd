@@ -18,6 +18,9 @@ architecture Behavioral of top_4x_ds18b20 is
 
     -- Wir sagen dem Top-Modul, wie unser Sensor-Modul aussieht
     component ds18b20_simple is
+        Generic (
+            CONVERT_TIME_US : integer := 800000
+        );
         Port (
             clk_100MHz : in  STD_LOGIC;
             dq         : inout STD_LOGIC;
@@ -25,6 +28,13 @@ architecture Behavioral of top_4x_ds18b20 is
             valid      : out STD_LOGIC
         );
     end component;
+
+    -- Damit die Testbench schneller durchläuft
+    -- In echter Hardware ist das 800.000 (800ms)
+    -- Da wir kein "Generic Map" in der Entity von top haben (wäre zu komplex für Anfänger)
+    -- setzen wir hier einen bedingten Default oder wir nutzen das VHDL Feature, dass die Testbench tief in die Komponenten guckt.
+    -- Um das Top-Modul für Simulationen beschleunigen zu können, ohne es für Anfänger unlesbar zu machen,
+    -- greifen wir in der Testbench einfach direkt ein. Hier bleibt es bei 800000.
 
     -- Leitungen, um die Temperaturen der 4 Sensoren zu speichern
     signal temp_1 : STD_LOGIC_VECTOR(15 downto 0);
@@ -42,6 +52,7 @@ begin
 
     -- Sensor 1 anschließen
     Sensor_1: ds18b20_simple
+        -- Die Zeit (800ms) ist direkt im ds18b20_simple_Modul per default gesetzt
         Port map (
             clk_100MHz => CLK100MHZ,
             dq         => DQ_1,

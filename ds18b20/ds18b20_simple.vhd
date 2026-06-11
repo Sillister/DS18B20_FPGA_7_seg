@@ -6,6 +6,9 @@ use IEEE.NUMERIC_STD.ALL;
 -- das Auslesen eines DS18B20 Temperatursensors verständlich zu machen.
 -- Einsteigerfreundliche Variablen und ausführliche Kommentare.
 entity ds18b20_simple is
+    Generic (
+        CONVERT_TIME_US : integer := 800000 -- Standardmäßig 800ms (800.000 us). Kann für Simulationen verkleinert werden.
+    );
     Port (
         clk_100MHz : in  STD_LOGIC;           -- 100 MHz Systemtakt (Standard vom Nexys 4)
         dq         : inout STD_LOGIC;         -- 1-Wire Datenleitung zum Sensor (an einen Pin anschließen)
@@ -172,9 +175,9 @@ begin
                                 end if;
                         end case;
 
-                    -- Schritt 5: Warten bis der Sensor fertig ist (800 Millisekunden)
+                    -- Schritt 5: Warten bis der Sensor fertig ist (abhängig von CONVERT_TIME_US)
                     when S_WAIT_CONV =>
-                        if timer_us = 800000 then -- 800.000 us = 800 ms
+                        if timer_us = CONVERT_TIME_US then
                             timer_us <= 0;
                             state <= S_RESET_PULSE_2;
                         else
