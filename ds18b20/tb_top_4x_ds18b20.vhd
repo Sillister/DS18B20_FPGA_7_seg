@@ -52,7 +52,11 @@ begin
     end process;
 
     sensor_sim : process
-        variable my_temp : std_logic_vector(15 downto 0) := "0000000110010000";
+        -- Temperatur: 123.4 °C
+        -- DS18B20 Format: Die untersten 4 Bit sind Nachkommastellen (1/16 = 0.0625 °C Schritte).
+        -- 123.375 °C = 123 + 6/16 -> 123 in Binär ist 01111011. Die Nachkommastelle 6/16 ist 0110.
+        -- Gesamter 16-Bit Wert: 0000 0111 1011 0110 = 0x07B6
+        variable my_temp : std_logic_vector(15 downto 0) := "0000011110110110";
     begin
         -- === SCHRITT 1: Reset 1 ===
         wait until dq = '0';
