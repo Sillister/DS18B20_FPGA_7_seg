@@ -48,6 +48,33 @@ architecture Behavioral of top_4x_ds18b20 is
     signal valid_3 : STD_LOGIC;
     signal valid_4 : STD_LOGIC;
 
+    -- =========================================================================
+    -- VIVADO ATTRIBUTE: Verhindern das Weg-Optimieren (Keep) und zwingen
+    -- die Signale in den ILA-Analyzer (Mark_Debug).
+    -- =========================================================================
+    attribute KEEP : string;
+    attribute MARK_DEBUG : string;
+
+    attribute KEEP of temp_1 : signal is "TRUE";
+    attribute KEEP of temp_2 : signal is "TRUE";
+    attribute KEEP of temp_3 : signal is "TRUE";
+    attribute KEEP of temp_4 : signal is "TRUE";
+
+    attribute MARK_DEBUG of temp_1 : signal is "TRUE";
+    attribute MARK_DEBUG of temp_2 : signal is "TRUE";
+    attribute MARK_DEBUG of temp_3 : signal is "TRUE";
+    attribute MARK_DEBUG of temp_4 : signal is "TRUE";
+
+    attribute KEEP of valid_1 : signal is "TRUE";
+    attribute KEEP of valid_2 : signal is "TRUE";
+    attribute KEEP of valid_3 : signal is "TRUE";
+    attribute KEEP of valid_4 : signal is "TRUE";
+
+    attribute MARK_DEBUG of valid_1 : signal is "TRUE";
+    attribute MARK_DEBUG of valid_2 : signal is "TRUE";
+    attribute MARK_DEBUG of valid_3 : signal is "TRUE";
+    attribute MARK_DEBUG of valid_4 : signal is "TRUE";
+
 begin
 
     -- Sensor 1 anschließen
