@@ -128,9 +128,9 @@ begin
                             when START_SLOT =>
                                 dq_out <= '0'; -- Puls beginnen
                                 timer_us <= timer_us + 1;
-                                -- Ist das Bit eine '1', lassen wir nach 5 us los.
+                                -- Ist das Bit eine '1', lassen wir nach 2 us los (max. 15us laut Spec).
                                 -- Ist das Bit eine '0', lassen wir erst nach 60 us los.
-                                if (data_to_send(bits_sent) = '1' and timer_us = 5) or
+                                if (data_to_send(bits_sent) = '1' and timer_us = 2) or
                                    (data_to_send(bits_sent) = '0' and timer_us = 60) then
                                     dq_out <= 'Z';
                                     io_state <= WAIT_SAMPLE;
@@ -161,7 +161,7 @@ begin
                             when START_SLOT =>
                                 dq_out <= '0';
                                 timer_us <= timer_us + 1;
-                                if (data_to_send(bits_sent) = '1' and timer_us = 5) or
+                                if (data_to_send(bits_sent) = '1' and timer_us = 2) or
                                    (data_to_send(bits_sent) = '0' and timer_us = 60) then
                                     dq_out <= 'Z';
                                     io_state <= WAIT_SAMPLE;
@@ -222,7 +222,7 @@ begin
                             when START_SLOT =>
                                 dq_out <= '0';
                                 timer_us <= timer_us + 1;
-                                if (data_to_send(bits_sent) = '1' and timer_us = 5) or
+                                if (data_to_send(bits_sent) = '1' and timer_us = 2) or
                                    (data_to_send(bits_sent) = '0' and timer_us = 60) then
                                     dq_out <= 'Z';
                                     io_state <= WAIT_SAMPLE;
@@ -251,7 +251,7 @@ begin
                             when START_SLOT =>
                                 dq_out <= '0';
                                 timer_us <= timer_us + 1;
-                                if (data_to_send(bits_sent) = '1' and timer_us = 5) or
+                                if (data_to_send(bits_sent) = '1' and timer_us = 2) or
                                    (data_to_send(bits_sent) = '0' and timer_us = 60) then
                                     dq_out <= 'Z';
                                     io_state <= WAIT_SAMPLE;

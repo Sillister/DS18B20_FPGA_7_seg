@@ -7,11 +7,18 @@ entity top_4x_ds18b20 is
         CLK100MHz : in  STD_LOGIC;  -- 100 MHz Takt vom Nexys 4
 
         -- PMOD JA Connector (Sensors connected to JA[4] to JA[7])
-        JA : inout STD_LOGIC_VECTOR(7 downto 0)
+        JA : inout STD_LOGIC_VECTOR(7 downto 0);
+
+        -- LEDs für Debugging (Sensor 1 Daten + Heartbeat)
+        LED : out STD_LOGIC_VECTOR(15 downto 0)
     );
 end top_4x_ds18b20;
 
 architecture Behavioral of top_4x_ds18b20 is
+
+    -- 1Hz Zähler für die LED
+    signal counter_1hz : integer range 0 to 100000000 := 0;
+    signal blink_state : STD_LOGIC := '0';
 
     -- Wir sagen dem Top-Modul, wie unser Sensor-Modul aussieht
     component ds18b20_simple is
@@ -95,5 +102,23 @@ begin
             temp_data  => temp_4,
             valid      => valid_4
         );
+
+    -- Einfacher 1 Hz Blink-Prozess, damit man sieht, dass das FPGA läuft
+    process(CLK100MHz)
+    begin
+        if rising_edge(CLK100MHz) then
+            if counter_1hz = 100000000 - 1 then
+                counter_1hz <= 0;
+                blink_state <= not blink_state;
+            else
+                counter_1hz <= counter_1hz + 1;
+            end if;
+        end if;
+    end process;
+
+    -- Gebe die unteren 15 Bits von Sensor 1 auf die LEDs aus
+    -- Bit 15 blinkt (Heartbeat)
+    LED(14 downto 0) <= temp_1(14 downto 0);
+    LED(15) <= blink_state;
 
 end Behavioral;
