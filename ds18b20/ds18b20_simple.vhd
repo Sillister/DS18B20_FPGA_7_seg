@@ -282,15 +282,15 @@ begin
                             when START_SLOT =>
                                 dq_out <= '0'; -- Lese-Puls starten
                                 timer_us <= timer_us + 1;
-                                if timer_us = 2 then
-                                    dq_out <= 'Z'; -- Nach 2 us wieder loslassen, damit Sensor senden kann
+                                if timer_us = 2 then -- Optimiert: kurzer Low-Puls
+                                    dq_out <= 'Z';
                                     io_state <= WAIT_SAMPLE;
                                 end if;
 
                             when WAIT_SAMPLE =>
                                 timer_us <= timer_us + 1;
-                                if timer_us = 12 then
-                                    -- Nach ca. 12 us schauen wir, was der Sensor uns sagt
+                                if timer_us = 10 then
+                                    -- Früher Samplen bei 10us maximiert die Kompatibilität
                                     temp_reg(bits_read) <= dq;
                                 elsif timer_us = 70 then
                                     -- Zyklus zuende, weiter zum nächsten Bit

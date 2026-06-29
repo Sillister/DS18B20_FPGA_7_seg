@@ -9,10 +9,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 -- ==============================================================================
 entity top_led_test_ds18b20 is
     Port (
-        CLK100MHZ : in  STD_LOGIC;  -- 100 MHz Takt vom Nexys 4
+        CLK100MHz : in  STD_LOGIC;  -- 100 MHz Takt vom Nexys 4
 
-        -- Pin für Sensor 1
-        DQ_1 : inout STD_LOGIC;
+        -- PMOD JA Connector (Sensor connected to JA[4])
+        JA : inout STD_LOGIC_VECTOR(7 downto 0);
 
         -- Die 16 LEDs des Nexys 4 Boards, um die Temperatur anzuzeigen
         LED  : out STD_LOGIC_VECTOR(15 downto 0)
@@ -36,11 +36,15 @@ architecture Behavioral of top_led_test_ds18b20 is
 
 begin
 
-    -- Den einzelnen Sensor anschließen
+    -- Setze nicht genutzte Pins auf High-Z
+    JA(7 downto 5) <= (others => 'Z');
+    JA(3 downto 0) <= (others => 'Z');
+
+    -- Den einzelnen Sensor anschließen an JA[4]
     Sensor_1: ds18b20_simple
         Port map (
-            clk_100MHz => CLK100MHZ,
-            dq         => DQ_1,
+            clk_100MHz => CLK100MHz,
+            dq         => JA(4),
             temp_data  => temp_1,
             valid      => valid_1
         );
