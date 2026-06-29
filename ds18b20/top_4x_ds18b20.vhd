@@ -4,13 +4,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 -- Dieses Modul ist der "Chef" (Top Level) und verbindet das FPGA mit den 4 Temperatursensoren.
 entity top_4x_ds18b20 is
     Port (
-        CLK100MHZ : in  STD_LOGIC;  -- 100 MHz Takt vom Nexys 4
+        CLK100MHz : in  STD_LOGIC;  -- 100 MHz Takt vom Nexys 4
 
-        -- Die 4 Pins, an denen die Sensoren angeschlossen sind
-        DQ_1 : inout STD_LOGIC;
-        DQ_2 : inout STD_LOGIC;
-        DQ_3 : inout STD_LOGIC;
-        DQ_4 : inout STD_LOGIC
+        -- PMOD JA Connector (Sensors connected to JA[4] to JA[7])
+        JA : inout STD_LOGIC_VECTOR(7 downto 0)
     );
 end top_4x_ds18b20;
 
@@ -59,39 +56,42 @@ architecture Behavioral of top_4x_ds18b20 is
 
 begin
 
-    -- Sensor 1 anschließen
+    -- Setze nicht genutzte Pins auf High-Z
+    JA(3 downto 0) <= (others => 'Z');
+
+    -- Sensor 1 an JA[4] (früher DQ_1) anschließen
     Sensor_1: ds18b20_simple
         -- Die Zeit (800ms) ist direkt im ds18b20_simple_Modul per default gesetzt
         Port map (
-            clk_100MHz => CLK100MHZ,
-            dq         => DQ_1,
+            clk_100MHz => CLK100MHz,
+            dq         => JA(4),
             temp_data  => temp_1,
             valid      => valid_1
         );
 
-    -- Sensor 2 anschließen
+    -- Sensor 2 an JA[5] (früher DQ_2) anschließen
     Sensor_2: ds18b20_simple
         Port map (
-            clk_100MHz => CLK100MHZ,
-            dq         => DQ_2,
+            clk_100MHz => CLK100MHz,
+            dq         => JA(5),
             temp_data  => temp_2,
             valid      => valid_2
         );
 
-    -- Sensor 3 anschließen
+    -- Sensor 3 an JA[6] (früher DQ_3) anschließen
     Sensor_3: ds18b20_simple
         Port map (
-            clk_100MHz => CLK100MHZ,
-            dq         => DQ_3,
+            clk_100MHz => CLK100MHz,
+            dq         => JA(6),
             temp_data  => temp_3,
             valid      => valid_3
         );
 
-    -- Sensor 4 anschließen
+    -- Sensor 4 an JA[7] (früher DQ_4) anschließen
     Sensor_4: ds18b20_simple
         Port map (
-            clk_100MHz => CLK100MHZ,
-            dq         => DQ_4,
+            clk_100MHz => CLK100MHz,
+            dq         => JA(7),
             temp_data  => temp_4,
             valid      => valid_4
         );
